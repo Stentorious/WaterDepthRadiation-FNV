@@ -1,0 +1,22 @@
+; Water Depth Radiation - Stentorious
+
+; Load INI Settings
+Goo1.AuxVarSetFlt "*WaterDepthRads" ((GetMaxOf 0 (GetINIFloat "General:fWaterRadiationMax" "Stentorious\WaterDepthRadiation.ini")) / 10) 0
+Goo1.AuxVarSetFlt "*WaterDepthRads" ((GetMaxOf 0 (GetMinOf (Goo1.AuxVarGetFlt "*WaterDepthRads" 0) (GetINIFloat "General:fWaterRadiationMin" "Stentorious\WaterDepthRadiation.ini"))) / 10) 1
+
+; Set game loop
+SetGameMainLoopCallback (begin function {}
+
+	float fImmersion = Player.GetWaterImmersionPerc
+	if fImmersion > 0
+		float fRadMin = Goo1.AuxVarGetFlt "*WaterDepthRads" 1
+		float fRadMax = Goo1.AuxVarGetFlt "*WaterDepthRads" 0
+		float fRadMult = fRadMin + (fImmersion * (fRadMax - fRadMin))
+		if fImmersion >= 0.7
+			SetNumericGameSetting "fSwimRadiationDamageMult" fRadMult
+		else
+			SetNumericGameSetting "fWadeRadiationDamageMult" fRadMult
+		endif
+	endif
+
+end) 1 5 1
